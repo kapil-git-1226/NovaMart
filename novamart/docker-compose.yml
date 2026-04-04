@@ -38,6 +38,9 @@ services:
     restart: unless-stopped
     ports:
       - "8001:8001"
+    volumes:
+      - ./services/auth/app:/app/app
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001", "--reload"]
     environment:
       DATABASE_URL: postgresql+pg8000://novamart:novamart123@postgres:5432/novamart
       SECRET_KEY: novamart-super-secret-key-change-this-in-production
@@ -59,6 +62,9 @@ services:
     restart: unless-stopped
     ports:
       - "8002:8002"
+    volumes:
+      - ./services/inventory/app:/app/app
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8002", "--reload"]
     environment:
       DATABASE_URL: postgresql+pg8000://novamart:novamart123@postgres:5432/novamart
       SECRET_KEY: novamart-super-secret-key-change-this-in-production
@@ -76,6 +82,9 @@ services:
     restart: unless-stopped
     ports:
       - "8003:8003"
+    volumes:
+      - ./services/sales/app:/app/app
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8003", "--reload"]
     environment:
       DATABASE_URL: postgresql+pg8000://novamart:novamart123@postgres:5432/novamart
       SECRET_KEY: novamart-super-secret-key-change-this-in-production
@@ -93,6 +102,9 @@ services:
     restart: unless-stopped
     ports:
       - "8004:8004"
+    volumes:
+      - ./services/analytics/app:/app/app
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8004", "--reload"]
     environment:
       DATABASE_URL: postgresql+pg8000://novamart:novamart123@postgres:5432/novamart
       ENVIRONMENT: development
@@ -108,6 +120,9 @@ services:
     restart: unless-stopped
     ports:
       - "8005:8005"
+    volumes:
+      - ./services/ai/app:/app/app
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8005", "--reload"]
     env_file:
       - .env
     environment:

@@ -20,6 +20,7 @@ export function getRoleId() {
 export const canSeeDashboard  = (r) => [1, 2].includes(r);
 export const canSeeInventory  = (r) => [1, 2, 3, 4].includes(r);
 export const canSeePOS        = (r) => [1, 2, 4].includes(r);
+export const canSeeReceipts   = (r) => [1, 2, 4].includes(r);
 export const canSeeAI         = (r) => [1, 2, 3, 4].includes(r);
 
 // Inventory action permissions

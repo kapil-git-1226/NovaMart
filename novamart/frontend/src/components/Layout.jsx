@@ -1,16 +1,17 @@
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Package, ShoppingCart,
-  LogOut, Store, Sparkles,
+  LogOut, Store, Sparkles, ReceiptText,
 } from 'lucide-react';
 import {
-  getRoleId, canSeeDashboard, canSeeInventory, canSeePOS, canSeeAI,
+  getRoleId, canSeeDashboard, canSeeInventory, canSeePOS, canSeeReceipts, canSeeAI,
 } from '../utils/rbac';
 
 const ALL_NAV = [
   { path: '/dashboard', label: 'Dashboard',    icon: LayoutDashboard, check: canSeeDashboard },
   { path: '/inventory', label: 'Inventory',     icon: Package,         check: canSeeInventory },
   { path: '/pos',       label: 'Point of Sale', icon: ShoppingCart,    check: canSeePOS },
+  { path: '/receipts',  label: 'Receipts',      icon: ReceiptText,     check: canSeeReceipts },
   { path: '/ai',        label: 'Ask AI',        icon: Sparkles,        check: canSeeAI },
 ];
 

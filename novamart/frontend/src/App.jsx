@@ -4,6 +4,7 @@ import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import Inventory from './pages/Inventory';
 import POS from './pages/POS';
+import Receipts from './pages/Receipts';
 import AiAssistant from './pages/AiAssistant';
 import Home from './pages/Home';
 
@@ -29,6 +30,7 @@ export default function App() {
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/inventory" element={<Inventory />} />
                   <Route path="/pos" element={<POS />} />
+                  <Route path="/receipts" element={<Receipts />} />
                   <Route path="/ai" element={<AiAssistant />} />
                 </Routes>
               </Layout>

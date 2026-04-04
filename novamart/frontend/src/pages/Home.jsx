@@ -2,10 +2,10 @@ import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Package, ShoppingCart,
-  Sparkles, ArrowRight, TrendingUp, Store,
+  Sparkles, ArrowRight, TrendingUp, Store, ReceiptText,
 } from 'lucide-react';
 import {
-  getRoleId, canSeeDashboard, canSeeInventory, canSeePOS, canSeeAI,
+  getRoleId, canSeeDashboard, canSeeInventory, canSeePOS, canSeeReceipts, canSeeAI,
 } from '../utils/rbac';
 
 const ROLE_LABELS = {
@@ -45,6 +45,16 @@ const ALL_CARDS = [
     gradient: 'from-violet-500 to-purple-400',
     glowColor: 'rgba(139,92,246,0.35)',
     emoji: '🛒',
+  },
+  {
+    path: '/receipts',
+    label: 'Receipts',
+    icon: ReceiptText,
+    check: canSeeReceipts,
+    description: 'View past receipts and track daily sales summaries.',
+    gradient: 'from-pink-500 to-rose-400',
+    glowColor: 'rgba(236,72,153,0.35)',
+    emoji: '🧾',
   },
   {
     path: '/ai',
