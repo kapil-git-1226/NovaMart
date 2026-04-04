@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { inventoryAPI } from '../api';
 import { Search, Plus, Minus, Package, AlertTriangle, Trash2, Pencil, X, Check } from 'lucide-react';
+import { getRoleId, canAddProduct, canEditProduct, canDeleteProduct, canAdjustStock } from '../utils/rbac';
 
 export default function Inventory() {
   const [products, setProducts]   = useState([]);
@@ -26,6 +27,13 @@ export default function Inventory() {
 
   const user    = JSON.parse(localStorage.getItem('user') || '{}');
   const storeId = user.store_id || 1;
+  const roleId  = getRoleId();
+
+  // Pre-compute permissions once
+  const allowAddProduct  = canAddProduct(roleId);
+  const allowEdit        = canEditProduct(roleId);
+  const allowDelete      = canDeleteProduct(roleId);
+  const allowStockAdjust = canAdjustStock(roleId);
 
   useEffect(() => { fetchData(); }, []);
 
@@ -178,9 +186,11 @@ export default function Inventory() {
         <button className={`filter-chip ${filter === 'low'     ? 'active' : ''}`} onClick={() => setFilter('low')}>⚠️ Low</button>
         <button className={`filter-chip ${filter === 'out'     ? 'active' : ''}`} onClick={() => setFilter('out')}>🚫 Out</button>
         <button className={`filter-chip ${filter === 'stocked' ? 'active' : ''}`} onClick={() => setFilter('stocked')}>✅ Healthy</button>
-        <button className="btn btn-primary btn-sm" onClick={() => { setShowAdd(!showAdd); setEditItem(null); setAdjustItem(null); }}>
-          <Plus size={16} /> Add Product
-        </button>
+        {allowAddProduct && (
+          <button className="btn btn-primary btn-sm" onClick={() => { setShowAdd(!showAdd); setEditItem(null); setAdjustItem(null); }}>
+            <Plus size={16} /> Add Product
+          </button>
+        )}
       </div>
 
       {/* ── Add Product Form ─────────────────────────────────── */}
@@ -336,43 +346,51 @@ export default function Inventory() {
                     </td>
                     <td>
                       <div style={{ display: 'flex', gap: 6 }}>
-                        {/* Add Stock */}
-                        <button
-                          onClick={() => { setAdjustItem({ item, mode: 'IN' }); setAdjustQty(''); setEditItem(null); setShowAdd(false); setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50); }}
-                          className="btn btn-sm"
-                          style={{ color: 'var(--success)', background: 'transparent', padding: '4px 8px', border: '1px solid rgba(16,185,129,0.3)' }}
-                          title="Add stock"
-                        >
-                          <Plus size={14} />
-                        </button>
+                        {/* Add Stock — inventory_supervisor and above */}
+                        {allowStockAdjust && (
+                          <button
+                            onClick={() => { setAdjustItem({ item, mode: 'IN' }); setAdjustQty(''); setEditItem(null); setShowAdd(false); setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50); }}
+                            className="btn btn-sm"
+                            style={{ color: 'var(--success)', background: 'transparent', padding: '4px 8px', border: '1px solid rgba(16,185,129,0.3)' }}
+                            title="Add stock"
+                          >
+                            <Plus size={14} />
+                          </button>
+                        )}
                         {/* Remove Stock */}
-                        <button
-                          onClick={() => { setAdjustItem({ item, mode: 'OUT' }); setAdjustQty(''); setEditItem(null); setShowAdd(false); setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50); }}
-                          className="btn btn-sm"
-                          disabled={!item.quantity}
-                          style={{ color: item.quantity ? 'var(--warning)' : 'var(--text-muted)', background: 'transparent', padding: '4px 8px', border: `1px solid ${item.quantity ? 'rgba(245,158,11,0.3)' : 'rgba(100,100,100,0.2)'}` }}
-                          title="Remove stock"
-                        >
-                          <Minus size={14} />
-                        </button>
-                        {/* Edit */}
-                        <button
-                          onClick={() => { openEdit(item); setAdjustItem(null); setShowAdd(false); setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50); }}
-                          className="btn btn-sm"
-                          style={{ color: 'var(--accent)', background: 'transparent', padding: '4px 8px', border: '1px solid rgba(99,102,241,0.3)' }}
-                          title="Edit product"
-                        >
-                          <Pencil size={14} />
-                        </button>
-                        {/* Delete */}
-                        <button
-                          onClick={() => handleDeleteProduct(item.id)}
-                          className="btn btn-sm"
-                          style={{ color: 'var(--danger)', background: 'transparent', padding: '4px 8px', border: '1px solid rgba(239,68,68,0.3)' }}
-                          title="Delete product"
-                        >
-                          <Trash2 size={14} />
-                        </button>
+                        {allowStockAdjust && (
+                          <button
+                            onClick={() => { setAdjustItem({ item, mode: 'OUT' }); setAdjustQty(''); setEditItem(null); setShowAdd(false); setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50); }}
+                            className="btn btn-sm"
+                            disabled={!item.quantity}
+                            style={{ color: item.quantity ? 'var(--warning)' : 'var(--text-muted)', background: 'transparent', padding: '4px 8px', border: `1px solid ${item.quantity ? 'rgba(245,158,11,0.3)' : 'rgba(100,100,100,0.2)'}` }}
+                            title="Remove stock"
+                          >
+                            <Minus size={14} />
+                          </button>
+                        )}
+                        {/* Edit — inventory_supervisor and above */}
+                        {allowEdit && (
+                          <button
+                            onClick={() => { openEdit(item); setAdjustItem(null); setShowAdd(false); setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50); }}
+                            className="btn btn-sm"
+                            style={{ color: 'var(--accent)', background: 'transparent', padding: '4px 8px', border: '1px solid rgba(99,102,241,0.3)' }}
+                            title="Edit product"
+                          >
+                            <Pencil size={14} />
+                          </button>
+                        )}
+                        {/* Delete — store_manager and above only */}
+                        {allowDelete && (
+                          <button
+                            onClick={() => handleDeleteProduct(item.id)}
+                            className="btn btn-sm"
+                            style={{ color: 'var(--danger)', background: 'transparent', padding: '4px 8px', border: '1px solid rgba(239,68,68,0.3)' }}
+                            title="Delete product"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>

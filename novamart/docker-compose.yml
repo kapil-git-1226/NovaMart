@@ -1,0 +1,136 @@
+version: "3.9"
+
+# ─────────────────────────────────────────────────────────────────────
+#  NovaMart — Full Stack Docker Compose
+#  Run with:  docker compose up --build
+#  Stop with: docker compose down
+# ─────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── PostgreSQL Database ──────────────────────────────────────────
+  postgres:
+    image: postgres:15
+    platform: linux/amd64
+    container_name: novamart-pg
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: novamart
+      POSTGRES_PASSWORD: novamart123
+      POSTGRES_DB: novamart
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U novamart -d novamart"]
+      interval: 10s
+      timeout: 10s
+      retries: 15
+      start_period: 30s
+
+  # ── Auth Service (port 8001) — sync pg8000 ───────────────────────
+  auth:
+    build: ./services/auth
+    platform: linux/amd64
+    container_name: novamart-auth
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      DATABASE_URL: postgresql+pg8000://novamart:novamart123@postgres:5432/novamart
+      SECRET_KEY: novamart-super-secret-key-change-this-in-production
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 30
+      REFRESH_TOKEN_EXPIRE_DAYS: 7
+      REDIS_URL: redis://localhost:6379/0
+      ENVIRONMENT: development
+      LOG_LEVEL: INFO
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ── Inventory Service (port 8002) — sync pg8000 ──────────────────
+  inventory:
+    build: ./services/inventory
+    platform: linux/amd64
+    container_name: novamart-inventory
+    restart: unless-stopped
+    ports:
+      - "8002:8002"
+    environment:
+      DATABASE_URL: postgresql+pg8000://novamart:novamart123@postgres:5432/novamart
+      SECRET_KEY: novamart-super-secret-key-change-this-in-production
+      ALGORITHM: HS256
+      ENVIRONMENT: development
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ── Sales Service (port 8003) — sync pg8000 ──────────────────────
+  sales:
+    build: ./services/sales
+    platform: linux/amd64
+    container_name: novamart-sales
+    restart: unless-stopped
+    ports:
+      - "8003:8003"
+    environment:
+      DATABASE_URL: postgresql+pg8000://novamart:novamart123@postgres:5432/novamart
+      SECRET_KEY: novamart-super-secret-key-change-this-in-production
+      ALGORITHM: HS256
+      ENVIRONMENT: development
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ── Analytics Service (port 8004) — sync pg8000 ──────────────────
+  analytics:
+    build: ./services/analytics
+    platform: linux/amd64
+    container_name: novamart-analytics
+    restart: unless-stopped
+    ports:
+      - "8004:8004"
+    environment:
+      DATABASE_URL: postgresql+pg8000://novamart:novamart123@postgres:5432/novamart
+      ENVIRONMENT: development
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ── AI Service (port 8005) — sync pg8000 + Gemini ────────────────
+  ai:
+    build: ./services/ai
+    platform: linux/amd64
+    container_name: novamart-ai
+    restart: unless-stopped
+    ports:
+      - "8005:8005"
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+pg8000://novamart:novamart123@postgres:5432/novamart
+      ENVIRONMENT: development
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ── Frontend (port 80) — Nginx stable ────────────────────────────
+  frontend:
+    build: ./frontend
+    platform: linux/amd64
+    container_name: novamart-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - auth
+      - inventory
+      - sales
+      - analytics
+      - ai
+
+volumes:
+  pg_data:

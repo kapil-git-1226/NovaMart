@@ -19,6 +19,38 @@ class User(Base):
     email = Column(String(150))
 
 
+class Product(Base):
+    """Reference model for FK resolution — transaction_items.product_id."""
+    __tablename__ = "products"
+    id        = Column(Integer, primary_key=True)
+    sku       = Column(String(50))
+    name      = Column(String(200))
+    category  = Column(String(100))
+    price     = Column(Numeric(10, 2))
+
+
+class Inventory(Base):
+    """Used to deduct stock when a sale is completed."""
+    __tablename__ = "inventory"
+    id           = Column(Integer, primary_key=True)
+    store_id     = Column(Integer, ForeignKey("stores.id"))
+    product_id   = Column(Integer, ForeignKey("products.id"))
+    quantity     = Column(Integer, nullable=False, default=0)
+    last_updated = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
+
+
+class StockMovement(Base):
+    """Audit trail — every sale writes an OUT movement."""
+    __tablename__ = "stock_movements"
+    id           = Column(Integer, primary_key=True)
+    store_id     = Column(Integer, ForeignKey("stores.id"))
+    product_id   = Column(Integer, ForeignKey("products.id"))
+    type         = Column(String(10), nullable=False)   # OUT
+    qty          = Column(Integer, nullable=False)
+    reference_id = Column(Integer)                      # transaction_id
+    moved_at     = Column(TIMESTAMP(timezone=True), server_default=func.now())
+
+
 class Transaction(Base):
     """A single sale/billing event at a store POS."""
     __tablename__ = "transactions"

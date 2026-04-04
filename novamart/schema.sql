@@ -1,5 +1,8 @@
+-- NovaMart Database Schema
+-- Uses IF NOT EXISTS so re-runs are safe (idempotent)
+
 -- Step 1: stores
-CREATE TABLE stores (
+CREATE TABLE IF NOT EXISTS stores (
   id        SERIAL PRIMARY KEY,
   name      VARCHAR(100) NOT NULL,
   city      VARCHAR(100),
@@ -8,14 +11,14 @@ CREATE TABLE stores (
 );
 
 -- Step 2: roles
-CREATE TABLE roles (
+CREATE TABLE IF NOT EXISTS roles (
   id          SERIAL PRIMARY KEY,
   name        VARCHAR(50) UNIQUE NOT NULL,
   permissions JSONB NOT NULL DEFAULT '{}'
 );
 
 -- Step 3: users
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
   id              SERIAL PRIMARY KEY,
   name            VARCHAR(100) NOT NULL,
   email           VARCHAR(150) UNIQUE NOT NULL,
@@ -27,7 +30,7 @@ CREATE TABLE users (
 );
 
 -- Step 4: products
-CREATE TABLE products (
+CREATE TABLE IF NOT EXISTS products (
   id            SERIAL PRIMARY KEY,
   sku           VARCHAR(50) UNIQUE NOT NULL,
   name          VARCHAR(200) NOT NULL,
@@ -39,7 +42,7 @@ CREATE TABLE products (
 );
 
 -- Step 5: inventory
-CREATE TABLE inventory (
+CREATE TABLE IF NOT EXISTS inventory (
   id           SERIAL PRIMARY KEY,
   store_id     INT REFERENCES stores(id),
   product_id   INT REFERENCES products(id),
@@ -49,7 +52,7 @@ CREATE TABLE inventory (
 );
 
 -- Step 6: stock_movements
-CREATE TABLE stock_movements (
+CREATE TABLE IF NOT EXISTS stock_movements (
   id           SERIAL PRIMARY KEY,
   store_id     INT REFERENCES stores(id),
   product_id   INT REFERENCES products(id),
@@ -60,7 +63,7 @@ CREATE TABLE stock_movements (
 );
 
 -- Step 7: transactions
-CREATE TABLE transactions (
+CREATE TABLE IF NOT EXISTS transactions (
   id             SERIAL PRIMARY KEY,
   store_id       INT REFERENCES stores(id),
   cashier_id     INT REFERENCES users(id),
@@ -71,7 +74,7 @@ CREATE TABLE transactions (
 );
 
 -- Step 8: transaction_items
-CREATE TABLE transaction_items (
+CREATE TABLE IF NOT EXISTS transaction_items (
   id             SERIAL PRIMARY KEY,
   transaction_id INT REFERENCES transactions(id),
   product_id     INT REFERENCES products(id),
@@ -81,7 +84,7 @@ CREATE TABLE transaction_items (
 );
 
 -- Step 9: returns
-CREATE TABLE returns (
+CREATE TABLE IF NOT EXISTS returns (
   id             SERIAL PRIMARY KEY,
   transaction_id INT REFERENCES transactions(id),
   reason         TEXT,
@@ -90,7 +93,7 @@ CREATE TABLE returns (
 );
 
 -- Step 10: audit_log
-CREATE TABLE audit_log (
+CREATE TABLE IF NOT EXISTS audit_log (
   id          BIGSERIAL PRIMARY KEY,
   user_id     INT REFERENCES users(id),
   action      VARCHAR(100) NOT NULL,
@@ -101,7 +104,7 @@ CREATE TABLE audit_log (
 );
 
 -- Step 11: ai_query_log
-CREATE TABLE ai_query_log (
+CREATE TABLE IF NOT EXISTS ai_query_log (
   id             SERIAL PRIMARY KEY,
   user_id        INT REFERENCES users(id),
   raw_query      TEXT NOT NULL,
@@ -112,7 +115,7 @@ CREATE TABLE ai_query_log (
 );
 
 -- Step 12: anomaly_flags
-CREATE TABLE anomaly_flags (
+CREATE TABLE IF NOT EXISTS anomaly_flags (
   id          SERIAL PRIMARY KEY,
   entity_type VARCHAR(50),
   entity_id   INT,
@@ -122,22 +125,25 @@ CREATE TABLE anomaly_flags (
   resolved    BOOLEAN DEFAULT FALSE
 );
 
--- Indexes
-CREATE INDEX idx_inventory_store    ON inventory(store_id);
-CREATE INDEX idx_inventory_product  ON inventory(product_id);
-CREATE INDEX idx_transactions_store ON transactions(store_id, created_at DESC);
-CREATE INDEX idx_tx_items_txn       ON transaction_items(transaction_id);
-CREATE INDEX idx_users_email        ON users(email);
-CREATE INDEX idx_audit_user         ON audit_log(user_id, created_at DESC);
+-- Indexes (IF NOT EXISTS requires PostgreSQL 9.5+)
+CREATE INDEX IF NOT EXISTS idx_inventory_store    ON inventory(store_id);
+CREATE INDEX IF NOT EXISTS idx_inventory_product  ON inventory(product_id);
+CREATE INDEX IF NOT EXISTS idx_transactions_store ON transactions(store_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_tx_items_txn       ON transaction_items(transaction_id);
+CREATE INDEX IF NOT EXISTS idx_users_email        ON users(email);
+CREATE INDEX IF NOT EXISTS idx_audit_user         ON audit_log(user_id, created_at DESC);
 
--- Initial Data Seeding
+-- Seed roles (ON CONFLICT DO NOTHING = safe to re-run)
 INSERT INTO roles (name, permissions) VALUES
   ('regional_admin',       '{"all": true}'),
   ('store_manager',        '{"store": "full"}'),
   ('inventory_supervisor', '{"inventory": "full"}'),
-  ('sales_associate',      '{"sales": "create", "products": "read"}');
+  ('sales_associate',      '{"sales": "create", "products": "read"}')
+ON CONFLICT (name) DO NOTHING;
 
+-- Seed stores
 INSERT INTO stores (name, city, region) VALUES
   ('NovaMart - Koramangala', 'Bangalore', 'South India'),
   ('NovaMart - Andheri',     'Mumbai',    'West India'),
-  ('NovaMart - Connaught',   'Delhi',     'North India');
+  ('NovaMart - Connaught',   'Delhi',     'North India')
+ON CONFLICT DO NOTHING;

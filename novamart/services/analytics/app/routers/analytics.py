@@ -16,7 +16,6 @@ def get_kpis(
     period: str = Query("7d", description="Time period: 1d, 7d, 30d, all"),
     db: Session = Depends(get_db)
 ):
-    # Map period to a SQL interval
     interval_map = {"1d": "1 day", "7d": "7 days", "30d": "30 days", "all": None}
     interval = interval_map.get(period, "7 days")
 
@@ -29,7 +28,7 @@ def get_kpis(
         text(f"""
             SELECT
                 COALESCE(SUM(total_amount), 0)  AS total_revenue,
-                COUNT(*)                         AS total_transactions,
+                COUNT(*)                        AS total_transactions,
                 COALESCE(AVG(total_amount), 0)  AS avg_basket_size,
                 COALESCE(MAX(total_amount), 0)  AS max_transaction,
                 COALESCE(MIN(total_amount), 0)  AS min_transaction
@@ -38,31 +37,29 @@ def get_kpis(
               AND status = 'completed'
         """),
         {"store_id": store_id}
-    ).fetchone()
+    ).mappings().fetchone()
 
     return {
         "store_id": store_id,
         "period": period,
-        "total_revenue": float(result.total_revenue),
-        "total_transactions": result.total_transactions,
-        "avg_basket_size": round(float(result.avg_basket_size), 2),
-        "max_transaction": float(result.max_transaction),
-        "min_transaction": float(result.min_transaction),
+        "total_revenue": float(result["total_revenue"]),
+        "total_transactions": result["total_transactions"],
+        "avg_basket_size": round(float(result["avg_basket_size"]), 2),
+        "max_transaction": float(result["max_transaction"]),
+        "min_transaction": float(result["min_transaction"]),
     }
 
 
 # ── GET /analytics/top-products/{store_id} ───────────────
-# Best-selling products by quantity sold
 @router.get("/top-products/{store_id}")
 def get_top_products(
     store_id: int,
-    limit: int = Query(10, description="Number of top products to return"),
-    period: str = Query("30d", description="Time period: 7d, 30d, all"),
+    limit: int = Query(10),
+    period: str = Query("30d"),
     db: Session = Depends(get_db)
 ):
     interval_map = {"7d": "7 days", "30d": "30 days", "all": None}
     interval = interval_map.get(period, "30 days")
-
     date_filter = f"AND t.created_at >= NOW() - INTERVAL '{interval}'" if interval else ""
 
     rows = db.execute(
@@ -85,19 +82,19 @@ def get_top_products(
             LIMIT :limit
         """),
         {"store_id": store_id, "limit": limit}
-    ).fetchall()
+    ).mappings().fetchall()
 
     return {
         "store_id": store_id,
         "period": period,
         "top_products": [
             {
-                "product_id": r.product_id,
-                "sku": r.sku,
-                "name": r.name,
-                "category": r.category,
-                "total_qty_sold": int(r.total_qty_sold),
-                "total_revenue": round(float(r.total_revenue), 2),
+                "product_id": r["product_id"],
+                "sku": r["sku"],
+                "name": r["name"],
+                "category": r["category"],
+                "total_qty_sold": int(r["total_qty_sold"]),
+                "total_revenue": round(float(r["total_revenue"]), 2),
             }
             for r in rows
         ]
@@ -105,10 +102,9 @@ def get_top_products(
 
 
 # ── GET /analytics/store-comparison ──────────────────────
-# Cross-store revenue comparison (for Regional Admin dashboards)
 @router.get("/store-comparison")
 def store_comparison(
-    period: str = Query("30d", description="Time period: 7d, 30d, all"),
+    period: str = Query("30d"),
     db: Session = Depends(get_db)
 ):
     interval_map = {"7d": "7 days", "30d": "30 days", "all": None}
@@ -131,18 +127,18 @@ def store_comparison(
             GROUP BY s.id, s.name, s.city, s.region
             ORDER BY revenue DESC
         """)
-    ).fetchall()
+    ).mappings().fetchall()
 
     return {
         "period": period,
         "stores": [
             {
-                "store_id": r.store_id,
-                "store_name": r.store_name,
-                "city": r.city,
-                "region": r.region,
-                "revenue": float(r.revenue),
-                "tx_count": r.tx_count,
+                "store_id": r["store_id"],
+                "store_name": r["store_name"],
+                "city": r["city"],
+                "region": r["region"],
+                "revenue": float(r["revenue"]),
+                "tx_count": r["tx_count"],
             }
             for r in rows
         ]
@@ -150,7 +146,6 @@ def store_comparison(
 
 
 # ── GET /analytics/hourly-sales/{store_id} ───────────────
-# Revenue & transaction count breakdown by hour (for today)
 @router.get("/hourly-sales/{store_id}")
 def hourly_sales(store_id: int, db: Session = Depends(get_db)):
     rows = db.execute(
@@ -167,16 +162,16 @@ def hourly_sales(store_id: int, db: Session = Depends(get_db)):
             ORDER BY hour
         """),
         {"store_id": store_id}
-    ).fetchall()
+    ).mappings().fetchall()
 
     return {
         "store_id": store_id,
         "date": "today",
         "hourly": [
             {
-                "hour": int(r.hour),
-                "tx_count": r.tx_count,
-                "revenue": round(float(r.revenue), 2)
+                "hour": int(r["hour"]),
+                "tx_count": r["tx_count"],
+                "revenue": round(float(r["revenue"]), 2)
             }
             for r in rows
         ]
@@ -184,7 +179,6 @@ def hourly_sales(store_id: int, db: Session = Depends(get_db)):
 
 
 # ── GET /analytics/inventory-health/{store_id} ───────────
-# Stock health: low stock count, out-of-stock, and overstock
 @router.get("/inventory-health/{store_id}")
 def inventory_health(store_id: int, db: Session = Depends(get_db)):
     rows = db.execute(
@@ -205,20 +199,20 @@ def inventory_health(store_id: int, db: Session = Depends(get_db)):
             ORDER BY i.quantity ASC
         """),
         {"store_id": store_id}
-    ).fetchall()
+    ).mappings().fetchall()
 
     summary = {"out_of_stock": 0, "low_stock": 0, "healthy": 0, "overstock": 0}
     items = []
     for r in rows:
-        summary[r.health_status] += 1
+        summary[r["health_status"]] += 1
         items.append({
-            "product_id": r.id,
-            "sku": r.sku,
-            "name": r.name,
-            "category": r.category,
-            "quantity": r.quantity,
-            "reorder_level": r.reorder_level,
-            "status": r.health_status,
+            "product_id": r["id"],
+            "sku": r["sku"],
+            "name": r["name"],
+            "category": r["category"],
+            "quantity": r["quantity"],
+            "reorder_level": r["reorder_level"],
+            "status": r["health_status"],
         })
 
     return {
@@ -229,11 +223,10 @@ def inventory_health(store_id: int, db: Session = Depends(get_db)):
 
 
 # ── GET /analytics/daily-trend/{store_id} ────────────────
-# Revenue trend for last N days (feeds line chart in dashboard)
 @router.get("/daily-trend/{store_id}")
 def daily_trend(
     store_id: int,
-    days: int = Query(30, description="Number of past days to include"),
+    days: int = Query(30),
     db: Session = Depends(get_db)
 ):
     rows = db.execute(
@@ -250,16 +243,16 @@ def daily_trend(
             ORDER BY day ASC
         """),
         {"store_id": store_id, "days": days}
-    ).fetchall()
+    ).mappings().fetchall()
 
     return {
         "store_id": store_id,
         "days": days,
         "trend": [
             {
-                "day": str(r.day),
-                "tx_count": r.tx_count,
-                "revenue": round(float(r.revenue), 2)
+                "day": str(r["day"]),
+                "tx_count": r["tx_count"],
+                "revenue": round(float(r["revenue"]), 2)
             }
             for r in rows
         ]
@@ -267,7 +260,6 @@ def daily_trend(
 
 
 # ── GET /analytics/payment-split/{store_id} ──────────────
-# Breakdown of sales by payment method (cash / card / upi)
 @router.get("/payment-split/{store_id}")
 def payment_split(
     store_id: int,
@@ -292,16 +284,16 @@ def payment_split(
             ORDER BY tx_count DESC
         """),
         {"store_id": store_id}
-    ).fetchall()
+    ).mappings().fetchall()
 
     return {
         "store_id": store_id,
         "period": period,
         "payment_methods": [
             {
-                "method": r.payment_method or "unknown",
-                "tx_count": r.tx_count,
-                "revenue": round(float(r.revenue), 2)
+                "method": r["payment_method"] or "unknown",
+                "tx_count": r["tx_count"],
+                "revenue": round(float(r["revenue"]), 2)
             }
             for r in rows
         ]

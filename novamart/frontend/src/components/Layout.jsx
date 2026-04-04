@@ -1,21 +1,24 @@
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import {
-  LayoutDashboard,
-  Package,
-  ShoppingCart,
-  LogOut,
-  Store,
+  LayoutDashboard, Package, ShoppingCart,
+  LogOut, Store, Sparkles,
 } from 'lucide-react';
+import {
+  getRoleId, canSeeDashboard, canSeeInventory, canSeePOS, canSeeAI,
+} from '../utils/rbac';
 
-const navItems = [
-  { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/inventory', label: 'Inventory', icon: Package },
-  { path: '/pos', label: 'Point of Sale', icon: ShoppingCart },
+const ALL_NAV = [
+  { path: '/dashboard', label: 'Dashboard',    icon: LayoutDashboard, check: canSeeDashboard },
+  { path: '/inventory', label: 'Inventory',     icon: Package,         check: canSeeInventory },
+  { path: '/pos',       label: 'Point of Sale', icon: ShoppingCart,    check: canSeePOS },
+  { path: '/ai',        label: 'Ask AI',        icon: Sparkles,        check: canSeeAI },
 ];
 
 export default function Layout({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const roleId   = getRoleId();
+  const navItems = ALL_NAV.filter((n) => n.check(roleId));
 
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const initials = (user.name || 'U')
@@ -36,7 +39,7 @@ export default function Layout({ children }) {
     <div className="app-layout">
       {/* ─── SIDEBAR ─────────────────────────── */}
       <aside className="sidebar">
-        <div className="sidebar-brand">
+        <div className="sidebar-brand" onClick={() => navigate('/home')} style={{ cursor: 'pointer' }}>
           <div className="brand-icon">
             <Store size={22} />
           </div>
