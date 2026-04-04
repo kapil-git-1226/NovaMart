@@ -1,6 +1,22 @@
-from sqlalchemy import Column, Integer, Numeric, String, ForeignKey, TIMESTAMP, Text
+from sqlalchemy import Column, Integer, Numeric, String, ForeignKey, TIMESTAMP, Text, Boolean
 from sqlalchemy.sql import func
 from app.database import Base
+
+
+class Store(Base):
+    """Reference model for FK resolution."""
+    __tablename__ = "stores"
+    id        = Column(Integer, primary_key=True)
+    name      = Column(String(100))
+    is_active = Column(Boolean, default=True)
+
+
+class User(Base):
+    """Reference model for FK resolution."""
+    __tablename__ = "users"
+    id    = Column(Integer, primary_key=True)
+    name  = Column(String(100))
+    email = Column(String(150))
 
 
 class Transaction(Base):

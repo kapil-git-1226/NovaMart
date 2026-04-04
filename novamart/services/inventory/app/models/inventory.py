@@ -1,9 +1,19 @@
 from sqlalchemy import (
     Column, Integer, String, Numeric, ForeignKey,
-    TIMESTAMP, UniqueConstraint
+    TIMESTAMP, UniqueConstraint, Boolean
 )
 from sqlalchemy.sql import func
 from app.database import Base
+
+
+class Store(Base):
+    """Lightweight reference model — SQLAlchemy needs this to resolve store_id FK."""
+    __tablename__ = "stores"
+    id        = Column(Integer, primary_key=True)
+    name      = Column(String(100))
+    city      = Column(String(100))
+    region    = Column(String(100))
+    is_active = Column(Boolean, default=True)
 
 
 class Product(Base):
