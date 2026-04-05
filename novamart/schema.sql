@@ -142,8 +142,25 @@ INSERT INTO roles (name, permissions) VALUES
 ON CONFLICT (name) DO NOTHING;
 
 -- Seed stores
-INSERT INTO stores (name, city, region) VALUES
-  ('NovaMart - Koramangala', 'Bangalore', 'South India'),
-  ('NovaMart - Andheri',     'Mumbai',    'West India'),
-  ('NovaMart - Connaught',   'Delhi',     'North India')
+INSERT INTO stores (name, city, region, is_active) VALUES
+  ('NovaMart - Koramangala',   'Bangalore',   'South India', true),
+  ('NovaMart - Andheri',       'Mumbai',      'West India',  true),
+  ('NovaMart - Connaught',     'Delhi',       'North India', true),
+  ('NovaMart - T. Nagar',      'Chennai',     'South India', true),
+  ('NovaMart - Banjara Hills', 'Hyderabad',   'South India', true),
+  ('NovaMart - Salt Lake',     'Kolkata',     'East India',  true),
+  ('NovaMart - Viman Nagar',   'Pune',        'West India',  true),
+  ('NovaMart - SG Highway',    'Ahmedabad',   'West India',  true),
+  ('NovaMart - Malviya',       'Jaipur',      'North India', true),
+  ('NovaMart - Adajan',        'Surat',       'West India',  true),
+  ('NovaMart - Orchard',       'Singapore',   'Southeast Asia', true),
+  ('NovaMart - Sukhumvit',     'Bangkok',     'Southeast Asia', true),
+  ('NovaMart - Bintang',       'Kuala Lumpur','Southeast Asia', true),
+  ('NovaMart - Menteng',       'Jakarta',     'Southeast Asia', true),
+  ('NovaMart - Makati',        'Manila',      'Southeast Asia', true),
+  ('NovaMart - District 1',    'Ho Chi Minh', 'Southeast Asia', true),
+  ('NovaMart - Hoan Kiem',     'Hanoi',       'Southeast Asia', true),
+  ('NovaMart - BKK1',          'Phnom Penh',  'Southeast Asia', true),
+  ('NovaMart - Dagon',         'Yangon',      'Southeast Asia', true),
+  ('NovaMart - Seminyak',      'Bali',        'Southeast Asia', true)
 ON CONFLICT DO NOTHING;

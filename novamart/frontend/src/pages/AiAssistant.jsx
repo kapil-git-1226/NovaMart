@@ -127,36 +127,36 @@ export default function AiAssistant() {
 
       <style dangerouslySetInnerHTML={{ __html: `
         .ai-assistant-container { height: calc(100vh - 140px); display: flex; flex-direction: column; max-width: 1000px; margin: 0 auto; }
-        .ai-chat-window { flex: 1; background: rgba(15,25,53,0.4); border: 1px solid rgba(100,140,220,0.15); backdrop-filter: blur(10px); border-radius: 16px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+        .ai-chat-window { flex: 1; background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: blur(10px); border-radius: 16px; display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--glass-shadow); }
         .ai-messages { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 24px; }
         .message-wrapper { display: flex; gap: 16px; max-width: 85%; }
         .message-wrapper.user { align-self: flex-end; flex-direction: row-reverse; }
         .message-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .bot .message-icon { background: linear-gradient(135deg, #3b82f633, #2dd4bf33); border: 1px solid #3b82f655; color: #60a5fa; }
-        .user .message-icon { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #e5e7eb; }
+        .bot .message-icon { background: rgba(255,255,255,0.05); border: 1px solid var(--border-subtle); color: var(--text-primary); }
+        .user .message-icon { background: var(--bg-card); border: 1px solid var(--border-subtle); color: var(--text-primary); }
         .message-content { display: flex; flex-direction: column; gap: 8px; }
-        .message-text { padding: 12px 16px; border-radius: 14px; font-size: 0.95rem; line-height: 1.5; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); }
-        .user .message-text { background: var(--primary-500); color: white; border: none; }
-        .message-sql { background: #050b1a; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; font-family: monospace; font-size: 0.8rem; }
-        .sql-header { display: flex; align-items: center; gap: 6px; color: #94a3b8; font-size: 0.7rem; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
-        .message-sql code { color: #34d399; }
-        .message-table-container { margin-top: 8px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; background: rgba(0,0,0,0.2); overflow-x: auto; }
+        .message-text { padding: 12px 16px; border-radius: 14px; font-size: 0.95rem; line-height: 1.5; background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle); }
+        .user .message-text { background: var(--primary-500); color: oklch(0 0 0); border: none; }
+        .message-sql { background: var(--bg-body); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px; font-family: monospace; font-size: 0.8rem; }
+        .sql-header { display: flex; align-items: center; gap: 6px; color: var(--text-muted); font-size: 0.7rem; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .message-sql code { color: var(--success); }
+        .message-table-container { margin-top: 8px; border: 1px solid var(--border-subtle); border-radius: 8px; background: var(--bg-body); overflow-x: auto; }
         .message-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
-        .message-table th { text-align: left; padding: 8px 12px; background: rgba(255,255,255,0.05); color: #94a3b8; font-weight: 600; }
-        .message-table td { padding: 8px 12px; border-top: 1px solid rgba(255,255,255,0.05); color: #e2e8f0; }
-        .table-footer { padding: 6px 12px; font-size: 0.7rem; color: #64748b; background: rgba(0,0,0,0.1); }
+        .message-table th { text-align: left; padding: 8px 12px; background: rgba(255,255,255,0.05); color: var(--text-muted); font-weight: 600; }
+        .message-table td { padding: 8px 12px; border-top: 1px solid var(--border-subtle); color: var(--text-primary); }
+        .table-footer { padding: 6px 12px; font-size: 0.7rem; color: var(--text-muted); background: rgba(0,0,0,0.1); }
         .suggested-queries { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
-        .suggested-queries button { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); color: #60a5fa; padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
-        .suggested-queries button:hover { background: rgba(59,130,246,0.2); border-color: #60a5fa; }
-        .ai-input-area { padding: 20px; border-top: 1px solid rgba(100,140,220,0.15); }
-        .input-wrapper { position: relative; display: flex; align-items: center; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 4px 8px; transition: all 0.2s; }
-        .input-wrapper:focus-within { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.2); }
-        .sparkle-icon { margin-left: 10px; color: #60a5fa; }
-        .input-wrapper input { flex: 1; background: none; border: none; color: white; padding: 12px; outline: none; font-size: 0.95rem; }
-        .input-wrapper button { background: #3b82f6; color: white; border: none; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .input-wrapper button:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
-        .ai-disclaimer { text-align: center; font-size: 0.72rem; color: #64748b; margin-top: 10px; }
-        .loading span { font-size: 0.9rem; color: #94a3b8; display: flex; align-items: center; gap: 8px; }
+        .suggested-queries button { background: transparent; border: 1px solid var(--border-subtle); color: var(--text-secondary); padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
+        .suggested-queries button:hover { background: var(--bg-card-hover); border-color: var(--primary-400); color: var(--text-primary); }
+        .ai-input-area { padding: 20px; border-top: 1px solid var(--border-subtle); }
+        .input-wrapper { position: relative; display: flex; align-items: center; background: var(--bg-input); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 4px 8px; transition: all 0.2s; }
+        .input-wrapper:focus-within { border-color: var(--primary-500); box-shadow: 0 0 0 2px var(--border-active); }
+        .sparkle-icon { margin-left: 10px; color: var(--primary-500); }
+        .input-wrapper input { flex: 1; background: none; border: none; color: var(--text-primary); padding: 12px; outline: none; font-size: 0.95rem; }
+        .input-wrapper button { background: var(--primary-500); color: oklch(0 0 0); border: none; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .input-wrapper button:disabled { background: var(--bg-card); color: var(--text-muted); cursor: not-allowed; }
+        .ai-disclaimer { text-align: center; font-size: 0.72rem; color: var(--text-muted); margin-top: 10px; }
+        .loading span { font-size: 0.9rem; color: var(--text-secondary); display: flex; align-items: center; gap: 8px; }
         .animate-spin { animation: spin 1s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
       `}} />

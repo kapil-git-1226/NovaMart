@@ -58,13 +58,13 @@ const ALL_CARDS = [
   },
   {
     path: '/ai',
-    label: 'Ask AI — Nova',
+    label: 'Ask Nova AI',
     icon: Sparkles,
     check: canSeeAI,
     description: 'Ask natural language questions about sales, stock, and store reports.',
     gradient: 'from-amber-500 to-orange-400',
     glowColor: 'rgba(245,158,11,0.35)',
-    emoji: '✨',
+    emoji: '🤖',
   },
 ];
 

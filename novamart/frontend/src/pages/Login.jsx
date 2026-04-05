@@ -14,6 +14,23 @@ const STORES = [
   { id: 1, name: 'NovaMart – Koramangala, Bangalore' },
   { id: 2, name: 'NovaMart – Andheri, Mumbai' },
   { id: 3, name: 'NovaMart – Connaught, Delhi' },
+  { id: 4, name: 'NovaMart – T. Nagar, Chennai' },
+  { id: 5, name: 'NovaMart – Banjara Hills, Hyderabad' },
+  { id: 6, name: 'NovaMart – Salt Lake, Kolkata' },
+  { id: 7, name: 'NovaMart – Viman Nagar, Pune' },
+  { id: 8, name: 'NovaMart – SG Highway, Ahmedabad' },
+  { id: 9, name: 'NovaMart – Malviya, Jaipur' },
+  { id: 10, name: 'NovaMart – Adajan, Surat' },
+  { id: 11, name: 'NovaMart – Orchard, Singapore' },
+  { id: 12, name: 'NovaMart – Sukhumvit, Bangkok' },
+  { id: 13, name: 'NovaMart – Bintang, Kuala Lumpur' },
+  { id: 14, name: 'NovaMart – Menteng, Jakarta' },
+  { id: 15, name: 'NovaMart – Makati, Manila' },
+  { id: 16, name: 'NovaMart – District 1, Ho Chi Minh' },
+  { id: 17, name: 'NovaMart – Hoan Kiem, Hanoi' },
+  { id: 18, name: 'NovaMart – BKK1, Phnom Penh' },
+  { id: 19, name: 'NovaMart – Dagon, Yangon' },
+  { id: 20, name: 'NovaMart – Seminyak, Bali' },
 ];
 
 export default function AuthPage() {
