@@ -8,13 +8,13 @@ The platform's standout feature is **Nova**, an embedded agentic AI assistant po
 
 ## ✨ Project Showcase (Screenshots)
 
-| Login & Authentication | Modern POS Dashboard |
+| Login & Authentication | Dashboard |
 | :---: | :---: |
-| ![Login Page Placeholder](./screenshots/login.png) | ![Dashboard Placeholder](./screenshots/dashboard.png) |
+| ![Login Page Placeholder](./login.png) | ![Dashboard Placeholder](./dashboard.png) |
 
 | AI Assistant ("Nova") | Inventory Management |
 | :---: | :---: |
-| ![AI Assistant](./screenshots/ai_assistant.png) | ![Inventory Management](./screenshots/inventory.png) |
+| ![AI Assistant](./ai_assistant.png) | ![Inventory Management](./inventory.png) |
 
 ---
 
