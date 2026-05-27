@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
+import Landing from './pages/Landing';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import Inventory from './pages/Inventory';
@@ -10,7 +11,7 @@ import Home from './pages/Home';
 
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem('access_token');
-  if (!token) return <Navigate to="/login" replace />;
+  if (!token) return <Navigate to="/" replace />;
   return children;
 }
 
@@ -18,14 +19,17 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Public routes — no auth required */}
+        <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
+
+        {/* Protected routes — require access token */}
         <Route
           path="/*"
           element={
             <ProtectedRoute>
               <Layout>
                 <Routes>
-                  <Route path="/" element={<Home />} />
                   <Route path="/home" element={<Home />} />
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/inventory" element={<Inventory />} />

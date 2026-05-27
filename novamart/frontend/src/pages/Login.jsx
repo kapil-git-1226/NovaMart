@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { authAPI } from '../api';
 import { ShoppingCart, UserPlus, LogIn, KeyRound, Send, RotateCcw } from 'lucide-react';
 
@@ -55,10 +55,18 @@ function TabBtn({ active, onClick, icon: Icon, label }) {
 
 export default function AuthPage() {
   // top-level mode: 'login' | 'otp' | 'register'
-  const [mode, setMode]       = useState('login');
+  const [searchParams] = useSearchParams();
+  const initialMode = searchParams.get('tab') === 'register' ? 'register' : 'login';
+  const [mode, setMode]       = useState(initialMode);
   const [error, setError]     = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  // If already logged in, skip the login page entirely
+  useEffect(() => {
+    const token = localStorage.getItem('access_token');
+    if (token) navigate('/home', { replace: true });
+  }, [navigate]);
 
   // ── Password login state ──────────────────────────────
   const [loginEmail, setLoginEmail]       = useState('');
