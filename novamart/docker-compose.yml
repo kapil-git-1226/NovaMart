@@ -6,6 +6,19 @@
 
 services:
 
+  # ── Redis Cache (OTP storage + KPI caching) ─────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: novamart-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # ── PostgreSQL Database ──────────────────────────────────────────
   postgres:
     image: postgres:15
@@ -45,11 +58,18 @@ services:
       ALGORITHM: HS256
       ACCESS_TOKEN_EXPIRE_MINUTES: 30
       REFRESH_TOKEN_EXPIRE_DAYS: 7
-      REDIS_URL: redis://localhost:6379/0
+      REDIS_URL: redis://redis:6379/0
       ENVIRONMENT: development
       LOG_LEVEL: INFO
+      SMTP_HOST: smtp.gmail.com
+      SMTP_PORT: 587
+      SMTP_USER: novamartagent@gmail.com
+      SMTP_PASSWORD: "cgow jmvi akyu ourn"
+      OTP_EXPIRE_SECONDS: 240
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
   # ── Inventory Service (port 8002) — sync pg8000 ──────────────────

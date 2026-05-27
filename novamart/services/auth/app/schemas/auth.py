@@ -40,3 +40,14 @@ class UserOut(BaseModel):
 
     class Config:
         from_attributes = True  # lets Pydantic read SQLAlchemy objects
+
+
+# ── OTP: request a code to be sent to email ───────────────
+class OtpRequest(BaseModel):
+    email: EmailStr
+
+
+# ── OTP: verify the code that was sent ────────────────────
+class OtpVerify(BaseModel):
+    email: EmailStr
+    code: str
