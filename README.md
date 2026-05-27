@@ -67,29 +67,4 @@ The platform's standout feature is **Nova**, an embedded agentic AI assistant po
    Open your browser and navigate to `http://localhost`.
 
 ---
-
-## 🖼️ How to Add Your Screenshots (Step-by-Step)
-
-To make your README look like the professional one above, follow these steps to add your actual interface screenshots:
-
-1.  **Capture**: Take high-quality screenshots of your running app (Login page, Dashboard, AI chat, etc.).
-2.  **Create Folder**: In your root `novamart` directory, create a folder named `screenshots`.
-    ```bash
-    mkdir screenshots
-    ```
-3.  **Name Files**: Rename your captured images to match the paths in the README:
-    - `login.png`
-    - `dashboard.png`
-    - `ai_assistant.png`
-    - `inventory.png`
-4.  **Move Files**: Move those images into the `screenshots/` folder.
-5.  **Git Push**: Push these new image files to your GitHub repository.
-    ```bash
-    git add screenshots/
-    git commit -m "docs: add project screenshots"
-    git push origin main
-    ```
-6.  **Refresh**: Refresh your GitHub page, and the placeholders in the README will automatically be replaced by your actual app images!
-
----
 *Developed for the Centific Premier Hackathon 2.0. Built with ❤️ by Kapil Gangwar.*
