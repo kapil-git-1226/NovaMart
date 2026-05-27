@@ -61,11 +61,11 @@ services:
       REDIS_URL: redis://redis:6379/0
       ENVIRONMENT: development
       LOG_LEVEL: INFO
-      SMTP_HOST: smtp.gmail.com
-      SMTP_PORT: 587
-      SMTP_USER: novamartagent@gmail.com
-      SMTP_PASSWORD: "cgow jmvi akyu ourn"
-      OTP_EXPIRE_SECONDS: 240
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      OTP_EXPIRE_SECONDS: ${OTP_EXPIRE_SECONDS}
     depends_on:
       postgres:
         condition: service_healthy
